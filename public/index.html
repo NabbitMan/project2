@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Wetty - The WebTTY Terminal Emulator</title>
+    <script src="/wetty/hterm_all.js"></script>
+    <script src="/wetty/socket.io/socket.io.js"></script>
+    <script src="/wetty/wetty.js"></script>
+    <style>
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0px;
+        }
+
+        #explorer {
+            display: block;
+            width: 40%;
+            height: 100%;
+
+            position: absolute;
+            top: 0;
+            left: 0;
+            
+        }
+
+        #editor {
+            display: block;
+            width: 60%;
+            height: 50%;
+
+            position: absolute;
+            top: 0;
+            right: 0;            
+        }
+
+        #terminal {
+            display: block;
+            width: 60%;
+            height: 50%;
+
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+    </style>
+    <link rel="stylesheet" href="/wetty/jstree/dist/themes/default/style.min.css" />
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
+</head>
+
+<body>
+    <div id="explorer">
+        <div id="jstreejson"></div>
+    </div>
+    <div id="editor"></div>
+    <div id="terminal"></div>
+    <script src="/wetty/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/wetty/jstree/dist/libs/jquery.min.js"></script>
+    <script src="/wetty/jstree/dist/jstree.min.js"></script>
+    <script>
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/monokai");
+        editor.session.setMode("ace/mode/java");
+    </script>
+    <script>
+        $(function() {
+            $('#jstreejson').jstree({
+                'core': {
+                    'data': {
+                        'url': '/api/tree',
+                        'data': function(node) {
+                            return { 'id': node.id };
+                        }
+                    }
+                }
+            })
+            .on('select_node.jstree', function(e, data) {
+                $.ajax({
+                    url: '/api/resource',
+                    data: {
+                        resource: data.node.id
+                    },
+                    type: 'GET',
+                    success: function (data) {
+                        // $("#editor").text(data);
+                        editor.setValue(data, -1);
+                        console.log(editor.getSelectedText());
+                    }
+                });
+            })
+        });
+    </script>
+</body>
+
+</html>
