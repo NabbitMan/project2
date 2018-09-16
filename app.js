@@ -54,7 +54,7 @@ if (opts.sshhost) {
 }
 
 if (opts.sshauth) {
-	sshauth = opts.sshauth
+    sshauth = opts.sshauth
 }
 
 if (opts.sshuser) {
@@ -68,26 +68,26 @@ if (opts.sslkey && opts.sslcert) {
     opts.ssl['cert'] = fs.readFileSync(path.resolve(opts.sslcert));
 }
 
-process.on('uncaughtException', function(e) {
+process.on('uncaughtException', function (e) {
     console.error('Error: ' + e);
 });
 
 var httpserv;
 
 var app = express();
-app.get('/wetty/ssh/:user', function(req, res) {
+app.get('/wetty/ssh/:user', function (req, res) {
     res.sendfile(__dirname + '/public/wetty/index.html');
 });
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-app.get('/api/tree', function(request, response) {
+app.get('/api/tree', function (request, response) {
     var _p;
-    if(request.query.id == "#") {
+    if (request.query.id == "#") {
         _p = path.resolve(__dirname, '.');
         processReq(_p, response);
     }
     else {
-        if(request.query.id) {
+        if (request.query.id) {
             _p = request.query.id;
             processReq(_p, response);
         }
@@ -99,8 +99,8 @@ app.get('/api/tree', function(request, response) {
 
 function processReq(_p, response) {
     var resp = [];
-    fs.readdir(_p, function(err, list) {
-        for(var listItem of list) {
+    fs.readdir(_p, function (err, list) {
+        for (var listItem of list) {
             resp.push(processNode(_p, listItem));
         }
         response.json(resp);
@@ -113,7 +113,7 @@ function processNode(_p, f) {
         "id": path.join(_p, f),
         "text": f,
         // "icon": s.isDirectory() ? this.icon : 'fa fa-file',
-        "state" : {
+        "state": {
             "opened": false,
             "disabled": false,
             "selected": false
@@ -127,21 +127,23 @@ function processNode(_p, f) {
 }
 
 app.get('/api/resource', function (req, res) {
-    res.send(fs.readFileSync(req.query.resource, 'utf-8'));
+    if (fs.lstatSync(req.query.resource).isFile()) {
+        res.send(fs.readFileSync(req.query.resource, 'utf-8'));
+    }
 });
 
 if (runhttps) {
-    httpserv = https.createServer(opts.ssl, app).listen(opts.port, function() {
+    httpserv = https.createServer(opts.ssl, app).listen(opts.port, function () {
         console.log('https on port ' + opts.port);
     });
 } else {
-    httpserv = http.createServer(app).listen(opts.port, function() {
+    httpserv = http.createServer(app).listen(opts.port, function () {
         console.log('http on port ' + opts.port);
     });
 }
 
-var io = server(httpserv,{path: '/wetty/socket.io'});
-io.on('connection', function(socket){
+var io = server(httpserv, { path: '/wetty/socket.io' });
+io.on('connection', function (socket) {
     var sshuser = '';
     var request = socket.request;
     console.log((new Date()) + ' Connection accepted.');
@@ -166,19 +168,19 @@ io.on('connection', function(socket){
         });
     }
     console.log((new Date()) + " PID=" + term.pid + " STARTED on behalf of user=" + sshuser)
-    term.on('data', function(data) {
+    term.on('data', function (data) {
         socket.emit('output', data);
     });
-    term.on('exit', function(code) {
+    term.on('exit', function (code) {
         console.log((new Date()) + " PID=" + term.pid + " ENDED")
     });
-    socket.on('resize', function(data) {
+    socket.on('resize', function (data) {
         term.resize(data.col, data.row);
     });
-    socket.on('input', function(data) {
+    socket.on('input', function (data) {
         term.write(data);
     });
-    socket.on('disconnect', function() {
+    socket.on('disconnect', function () {
         term.end();
     });
 })
