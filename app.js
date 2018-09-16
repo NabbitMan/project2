@@ -37,6 +37,11 @@ var opts = require('optimist')
             alias: 'p',
             description: 'wetty listen port'
         },
+        tutorialDir: {
+            demand: false,
+            alias: 'd',
+            description: 'server dir as explorer'
+        },
     }).boolean('allow_discovery').argv;
 
 var runhttps = false;
@@ -44,6 +49,7 @@ var sshport = 22;
 var sshhost = 'localhost';
 var sshauth = 'password,keyboard-interactive';
 var globalsshuser = '';
+var tutorialDir = '.'; // default is current directory
 
 if (opts.sshport) {
     sshport = opts.sshport;
@@ -68,6 +74,10 @@ if (opts.sslkey && opts.sslcert) {
     opts.ssl['cert'] = fs.readFileSync(path.resolve(opts.sslcert));
 }
 
+if (opts.tutorialDir) {
+    tutorialDir = opts.tutorialDir;
+}
+
 process.on('uncaughtException', function (e) {
     console.error('Error: ' + e);
 });
@@ -83,7 +93,8 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 app.get('/api/tree', function (request, response) {
     var _p;
     if (request.query.id == "#") {
-        _p = path.resolve(__dirname, '.');
+        // _p = path.resolve(__dirname, '.');
+        _p = path.resolve(tutorialDir);
         processReq(_p, response);
     }
     else {
