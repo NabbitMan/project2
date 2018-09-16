@@ -112,7 +112,7 @@ function processNode(_p, f) {
     return {
         "id": path.join(_p, f),
         "text": f,
-        // "icon": s.isDirectory() ? this.icon : 'fa fa-file',
+        "icon": s.isDirectory() ? this.icon : 'fa fa-file',
         "state": {
             "opened": false,
             "disabled": false,
