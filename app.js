@@ -80,6 +80,56 @@ app.get('/wetty/ssh/:user', function(req, res) {
 });
 app.use('/', express.static(path.join(__dirname, 'public')));
 
+app.get('/api/tree', function(request, response) {
+    var _p;
+    if(request.query.id == "#") {
+        _p = path.resolve(__dirname, '.');
+        processReq(_p, response);
+    }
+    else {
+        if(request.query.id) {
+            _p = request.query.id;
+            processReq(_p, response);
+        }
+        else {
+            response.json(['No valid data found']);
+        }
+    }
+});
+
+function processReq(_p, response) {
+    var resp = [];
+    fs.readdir(_p, function(err, list) {
+        for(var listItem of list) {
+            resp.push(processNode(_p, listItem));
+        }
+        response.json(resp);
+    });
+}
+
+function processNode(_p, f) {
+    var s = fs.statSync(path.join(_p, f));
+    return {
+        "id": path.join(_p, f),
+        "text": f,
+        // "icon": s.isDirectory() ? this.icon : 'fa fa-file',
+        "state" : {
+            "opened": false,
+            "disabled": false,
+            "selected": false
+        },
+        "li_addr": {
+            "base": path.join(_p, f),
+            "isLeaf": !s.isDirectory()
+        },
+        "children": s.isDirectory()
+    };
+}
+
+app.get('/api/resource', function(req, res) {
+    res.send(fs.readFileSync(req.query.resource, 'utf-8'));
+});
+
 if (runhttps) {
     httpserv = https.createServer(opts.ssl, app).listen(opts.port, function() {
         console.log('https on port ' + opts.port);
