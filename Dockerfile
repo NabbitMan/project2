@@ -1,5 +1,4 @@
-FROM node:0.10.38
-MAINTAINER Nathan LeClaire <nathan@docker.com>
+FROM node:8
 
 ADD . /app
 WORKDIR /app
