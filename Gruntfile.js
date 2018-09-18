@@ -28,10 +28,34 @@ module.exports = function (grunt) {
                 }
             }
         },
-        clean: ['./tmp']
+        clean: ['./tmp'],
+        copy: {
+            js: {
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['node_modules/bootstrap/dist/js/*'],
+                        dest: 'public/wetty/js/' 
+                    }
+                ]
+            },
+            css: {
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['node_modules/bootstrap/dist/css/*'],
+                        dest: 'public/wetty/css/' 
+                    }
+                ]
+            }
+        }
     };
 
     grunt.initConfig(config);
 
     grunt.registerTask('update-hterm', ['mkdir:tmp', 'gitclone:hterm', 'shell:build_hterm', 'clean']);
+
+    grunt.loadNpmTasks('grunt-contrib-copy');
 };
