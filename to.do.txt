@@ -1,0 +1,2 @@
+1. create lab and persist to db
+2. list all labs
