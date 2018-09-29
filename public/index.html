@@ -63,9 +63,28 @@
     <script src="/wetty/jstree/dist/jstree.min.js"></script>
     <script src="/wetty/src-noconflict/ace.js"></script>
     <script>
+            var editors = {};
+
+            var savedata = function (save_button_id) {
+                var fileName = save_button_id;
+                var fileContents = editors[save_button_id].getSession().getValue();
+                console.log(fileName, fileContents);
+                $.ajax({
+                    url: '/api/savedata',
+                    type: 'POST',
+                    data: {
+                        file: fileName,
+                        contents: fileContents
+                    },
+                    success: function (data) {
+                        console.log(data);
+                    }
+                });
+            };
+
             $.fn.addEditorTab = function(name, tabName, contents) {
                 $('ul', this).append('<li><a href="#tab-' + name + '">' + tabName + '</a><span class="ui-icon ui-icon-close" role="presentation"></li>');
-                $(this).append('<div id="tab-' + name + '"><div id="editor-' + name + '" class="editor_body"></div></div>');
+                $(this).append('<div id="tab-' + name + '"><div><button id="' + name + '" class="btn btn-sm" onclick="savedata(this.id)"><i class="fa fa-save"></i></button></div><div id="editor-' + name + '" class="editor_body"></div></div>');
                 $(this).tabs('refresh');
 
                 var editor = ace.edit("editor-" + name);
@@ -78,7 +97,7 @@
     
             $(function() {
                 var tabs = $('#tabs').tabs();
-                var editors = {};
+                
 
                 // var file1Path = "D:/file1.js";
                 // var file1Name = "file1.js";
