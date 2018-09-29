@@ -4,11 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Wetty - The WebTTY Terminal Emulator</title>
-    <script src="/wetty/hterm_all.js"></script>
-    <script src="/wetty/socket.io/socket.io.js"></script>
-    <script src="/wetty/wetty.js"></script>
-    <script src="/wetty/jstree/dist/libs/jquery.min.js"></script>
-    <script src="/wetty/js/bootstrap.min.js"></script>
+
     <style>
         html,
         body {
@@ -28,7 +24,7 @@
             
         }
 
-        #editor {
+        #editor_container {
             display: block;
             width: 70%;
             height: 50%;
@@ -36,6 +32,10 @@
             position: absolute;
             top: 0;
             right: 0;            
+        }
+
+        .editor_body {
+            height: 250px;
         }
 
         #terminal {
@@ -48,9 +48,104 @@
             right: 0;
         }
     </style>
+    <!-- <link rel="stylesheet" type="text/css" href="/wetty/css/main.css" /> -->
+    <link rel="stylesheet" href="/wetty/jquery-ui/css/jquery-ui.min.css" />
     <link rel="stylesheet" href="/wetty/jstree/dist/themes/default/style.min.css" />
     <link rel="stylesheet" href="/wetty/font-awesome/css/font-awesome.css" />
-    <link rel="stylesheet" href="/wetty/css/bootstrap.min.css" />
+    <!-- <link rel="stylesheet" href="/wetty/css/bootstrap.min.css" /> -->
+
+    <script src="/wetty/hterm_all.js"></script>
+    <script src="/wetty/socket.io/socket.io.js"></script>
+    <script src="/wetty/wetty.js"></script>
+    <script src="/wetty/jquery/jquery.min.js"></script>
+    <script src="/wetty/jquery-ui/js/jquery-ui.min.js"></script>
+    <!-- <script src="/wetty/js/bootstrap.min.js"></script> -->
+    <script src="/wetty/jstree/dist/jstree.min.js"></script>
+    <script src="/wetty/src-noconflict/ace.js"></script>
+    <script>
+            $.fn.addEditorTab = function(name, tabName, contents) {
+                $('ul', this).append('<li><a href="#tab-' + name + '">' + tabName + '</a><span class="ui-icon ui-icon-close" role="presentation"></li>');
+                $(this).append('<div id="tab-' + name + '"><div id="editor-' + name + '" class="editor_body"></div></div>');
+                $(this).tabs('refresh');
+
+                var editor = ace.edit("editor-" + name);
+                editor.setTheme("ace/theme/monokai");
+                editor.getSession().setMode("ace/mode/javascript");
+                editor.getSession().setValue(contents);
+
+                return editor;
+            };
+    
+            $(function() {
+                var tabs = $('#tabs').tabs();
+                var editors = {};
+
+                // var file1Path = "D:/file1.js";
+                // var file1Name = "file1.js";
+                // var file1Contents = "Dipankar";
+
+                // var file2Path = "D:/file2.js";
+                // var file2Name = "file2.js";
+                // var file2Contents = "Nag";
+
+                // editors[file1Path] = tabs.addEditorTab(file1Path, file1Name, file1Contents);
+                // editors[file2Path] = tabs.addEditorTab(file2Path, file2Name, file2Contents);
+                // editors[file2Path] = tabs.addEditorTab(file2Path, file2Name, file2Contents);
+
+                tabs.on('click', 'span.ui-icon-close',  function() {
+                    var panelId = $(this).closest('li').remove().attr('aria-controls');
+                    var editorId = panelId.replace("tab-", "editor-");
+
+                    $('div[id="' + editorId + '"]').remove();
+                    $('div[id="' + panelId + '"]').remove();
+
+                    editors[editorId.replace("editor-", "")].destroy();
+                    // editors.splice(editors.indexOf(panelId.replace("tab-", "")), 1);
+                    // console.log(editors.indexOf(panelId.replace("tab-", "")));
+                    delete editors[panelId.replace("tab-", "")];
+
+                    tabs.tabs('refresh');
+                });
+    
+                $('#jstreejson').jstree({
+                    'core': {
+                        'data': {
+                            'url': '/api/tree',
+                            'data': function(node) {
+                                return { 'id': node.id };
+                            }
+                        }
+                    }
+                })
+                .on('select_node.jstree', function(e, item) {
+                    $.ajax({
+                        url: '/api/resource',
+                        data: {
+                            resource: item.node.id
+                        },
+                        type: 'GET',
+                        success: function (data) {
+                            // $("#editor").text(data);
+                            // editor.setValue(data, -1);
+                            // console.log(editor.getSelectedText());
+                            console.log(editors);
+                            console.log(item.node.id, item.node.text);
+                            if (typeof editors[item.node.id] === 'undefined') {
+                                editors[item.node.id] = tabs.addEditorTab(item.node.id, item.node.text, data);
+                            }
+                            else {
+                                console.log("Tab exists");
+                            }
+                            $('a[href="#tab-' + item.node.id + '"]').click();
+                        }
+                    });
+                });
+    
+                $('#refresh_explorer').on('click', function() {
+                    $('#jstreejson').jstree('refresh');
+                });
+            });
+        </script>
 </head>
 
 <body>
@@ -60,47 +155,19 @@
         </div>
         <div id="jstreejson"></div>
     </div>
-    <div id="editor"></div>
+    <div id="editor_container">
+        <div id="tabs">
+            <ul></ul>
+        </div>
+    </div>
     <div id="terminal"></div>
-    <script src="/wetty/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script src="/wetty/jstree/dist/jstree.min.js"></script>
-    <script>
+    <!-- <script src="/wetty/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script> -->
+    <!-- <script>
         var editor = ace.edit("editor");
         editor.setTheme("ace/theme/solarized_light");
         editor.session.setMode("ace/mode/java");
-    </script>
-    <script>
-        $(function() {
-            $('#jstreejson').jstree({
-                'core': {
-                    'data': {
-                        'url': '/api/tree',
-                        'data': function(node) {
-                            return { 'id': node.id };
-                        }
-                    }
-                }
-            })
-            .on('select_node.jstree', function(e, data) {
-                $.ajax({
-                    url: '/api/resource',
-                    data: {
-                        resource: data.node.id
-                    },
-                    type: 'GET',
-                    success: function (data) {
-                        // $("#editor").text(data);
-                        editor.setValue(data, -1);
-                        console.log(editor.getSelectedText());
-                    }
-                });
-            });
-
-            $('#refresh_explorer').on('click', function() {
-                $('#jstreejson').jstree('refresh');
-            });
-        });
-    </script>
+    </script> -->
+    
 </body>
 
 </html>
