@@ -5,6 +5,7 @@ var path = require('path');
 var server = require('socket.io');
 var pty = require('pty.js');
 var fs = require('fs');
+var bodyParser = require('body-parser');
 
 var opts = require('optimist')
     .options({
@@ -85,6 +86,10 @@ process.on('uncaughtException', function (e) {
 var httpserv;
 
 var app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.get('/wetty/ssh/:user', function (req, res) {
     res.sendfile(__dirname + '/public/wetty/index.html');
 });
@@ -140,6 +145,15 @@ function processNode(_p, f) {
 app.get('/api/resource', function (req, res) {
     if (fs.lstatSync(req.query.resource).isFile()) {
         res.send(fs.readFileSync(req.query.resource, 'utf-8'));
+    }
+});
+
+app.post('/api/savedata', function (req, res) {
+    console.log(req.body);
+    var fileName = req.body.file;
+    var fileContents = req.body.contents;
+    if (fs.lstatSync(fileName).isFile()) {
+        res.send(fs.writeFileSync(fileName, fileContents, 'utf-8'));
     }
 });
 
