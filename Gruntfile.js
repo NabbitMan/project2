@@ -43,6 +43,12 @@ module.exports = function (grunt) {
                         flatten: true,
                         src: ['node_modules/jquery/dist/*'],
                         dest: 'public/wetty/jquery/' 
+                    },
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['node_modules/jquery-ui-dist/*.js'],
+                        dest: 'public/wetty/jquery-ui/js/' 
                     }
                 ]
             },
@@ -53,6 +59,22 @@ module.exports = function (grunt) {
                         flatten: true,
                         src: ['node_modules/bootstrap/dist/css/*'],
                         dest: 'public/wetty/bootstrap/css/'
+                    },
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['node_modules/jquery-ui-dist/*.css'],
+                        dest: 'public/wetty/jquery-ui/css/' 
+                    }
+                ]
+            },
+            images: {
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['node_modules/jquery-ui-dist/images/*'],
+                        dest: 'public/wetty/jquery-ui/css/images/'
                     }
                 ]
             }
