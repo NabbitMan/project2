@@ -47,6 +47,110 @@
             bottom: 0;
             right: 0;
         }
+
+        .ui_widget {
+            font-size: .8em !important;
+        }
+        
+        .ui-tabs-nav {
+            position: relative;
+        }
+        
+        .ui-tabs .ui-tabs-nav-arrows {
+            position: relative;
+            top: 1px;
+            right: 1px;
+            left: 1px;
+            margin: .1 em;
+            padding: 0;
+        }
+
+        .ui-tabs .ui-tabs-nav-arrows .ui-tabs-arrow-next {
+            float: right;
+        }
+
+        .ui-tabs .ui-tabs-nav-arrows li {
+            list-style: none;
+            position: relative;
+            cursor: pointer;
+            z-index: 1000;
+            line-height: 1;
+            margin: 0;
+            padding: 0;
+        }
+
+        .ui-tabs .ui-tabs-nav-arrows li a {
+            display: block;
+            padding: .7em .1em;
+        }
+
+        .ui-tabs .ui-tabs-nav-arrows .ui-tabs-arrow-previous {
+            float: left;
+        }
+
+        .ui-tabs .ui-tabs-scroll-container {
+            position: relative;
+            height: 2.7em;
+            overflow: hidden;
+        }
+
+        .ui-tabs .ui-tabs-nav-scrollable {
+            position: absolute;
+            left: 0;
+            right: 0;
+        }
+
+        .ui-tabs .ui-tabs-nav-scrollable ul {
+            position: relative;
+            width: 10000px;
+        }
+
+        .ui-tabs-overflow {
+            position: relative;
+            z-index: 100;
+            list-style: none;
+            display: block;
+            width: 200px;
+            right: 0;
+            border: 1px solid #d3d3d3;
+            border-radius: 10px;
+            min-height: 50px;
+            background: #ececec;
+            padding: 10px;
+        }
+
+        .ui-tabs-overflow li:before, .ui-tabs-overflow .ui-state-default {
+            border: 0;
+            clear: both;
+        }
+
+        .ui-tabs-overflow li:before, .ui-tabs-overflow li:after {
+            border: 0;
+        }
+
+        .ui-tabs-overflow.hide {
+            visibility: hidden;
+        }
+
+        .overflow-selector {
+            position: absolute;
+            top: 12px;
+            right: 10px;
+            background: #ececec;
+            width: 40px;
+            height: 15px;
+            border: 1px solid #d3d3d3;
+            border-top-left-radius: 5px;
+            text-align: center;
+            line-height: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .overflow-selector .total {
+            font-weight: normal;
+        }
     </style>
     <!-- <link rel="stylesheet" type="text/css" href="/wetty/css/main.css" /> -->
     <link rel="stylesheet" href="/wetty/jquery-ui/css/jquery-ui.min.css" />
@@ -63,13 +167,130 @@
     <script src="/wetty/jstree/dist/jstree.min.js"></script>
     <script src="/wetty/src-noconflict/ace.js"></script>
     <script>
-            var editors = {};
+        $.widget('ui.tabs', $.ui.tabs, {
+            options: {
+                overflowTabs: false,
+                tabPadding: 25,
+                containerPadding: 0,
+                dropdownSize: 50
+            },
 
-            var savedata = function (save_button_id) {
-                var fileName = save_button_id;
-                var fileContents = editors[save_button_id].getSession().getValue();
-                console.log(fileName, fileContents);
-                $.ajax({
+            _create: function() {
+                this._super('_create');
+                this.tabsWidth = 0;
+                this.containerWidth = 0;
+
+                if(!this.options.overflowTabs) {
+                    return;
+                }
+
+                this.updateOverflowTabs();
+                var that = this;
+                $(window).resize(function() {
+                    setTimeout(function() {
+                        that.updateOverflowTabs();
+                    }, 150);
+                });
+
+                $('.overflow-selector').click(function() {
+                    if($('.ui-tabs-overflow').hasClass('hide')) {
+                        $('.ui-tabs-overflow').removeClass('hide');
+                    }
+                    else {
+                        $('.ui-tabs-overflow').addClass('hide');
+                    }
+                });
+            },
+            refresh: function() {
+                this._super('refresh');
+                this.updateOverflowTabs();
+            },
+            updateOverflowTabs: function() {
+                var failsafe = 0;
+                this._calculateWidths();
+                console.log(this.containerWidth);
+
+                while(this.tabsWidth > this.containerWidth && failsafe < 30) {
+                    this._hideTab();
+                    this._calculateWidths();
+                    failsafe++;
+                }
+
+                if ($(this.element).find('.ui-tabs-overflow li').length == 0) {
+                    return;
+                }
+
+                failsafe = 0;
+
+                var next = this._nextTab();
+
+                while(next.totalSize < this.containerWidth && $(this.element).find('.ui-tabs-overflow li').length > 0 && failsafe < 30) {
+                    this._showTab(next.tab);
+                    this._calculateWidths();
+                    next = this._nextTab();
+                    failsafe++;
+                }
+            },
+
+            _calculateWidths: function() {
+                var width = 0;
+                $(this.element).find('.ui-tabs-nav > li').each(function() {
+                    width += $(this).outerWidth(true);
+                });
+
+                this.tabsWidth = width;
+                this.containerWidth = $(this.element).parent().width() - this.options.containerPadding - this.options.dropdownSize;
+
+                $('.overflow-selector .total').html($(this.element).find('.ui-tabs-overflow li').length);
+            },
+
+            _hideTab: function() {
+                if (!$(this.element).find('.ui-tabs-overflow').length) {
+                    $(this.element).find('.ui-tabs-nav').after('<ul class="ui-tabs-overflow hide"></ul>');
+                    $(this.element).find('.ui-tabs-overflow').after('<div class="overflow-selector">&#8595 <span class="total">0</span></div>');
+                }
+                
+                var lastTab = $(this.element).find('.ui-tabs-nav li').last();
+                lastTab.appendTo($(this.element).find('.ui-tabs-overflow'));
+            },
+
+            _showTab: function(tab) {
+                tab.appendTo($(this.element).find('.ui-tabs-nav'));
+
+                if ($(this.element).find('.ui-tabs-overflow li').length == 0) {
+                    $(this.element).find('.ui-tabs-overflow').remove();
+                    $(this.element).find('.overflow-selector').remove();
+                }
+            },
+
+            _nextTab: function() {
+                var result = {};
+                var firstTab = $(this.element).find('.ui-tabs-overflow li').first();
+                result['tab'] = firstTab;
+                result['totalSize'] = this.tabsWidth + this._textWidth(firstTab) + this.options.tabPadding;
+                return result;
+            },
+
+            _textWidth: function(element) {
+                var self = $(element),
+                    children = self.children(),
+                    calculator = $('<span style="display: inline-block;" />'), width;
+
+                children.wrap(calculator);
+                width = children.parent().width();
+                children.unwrap();
+
+                return width;
+            }
+        });
+
+        var editors = {};
+
+        var savedata = function (save_button_id) {
+            var fileName = save_button_id;
+            var fileContents = editors[save_button_id].getSession().getValue();
+            console.log(fileName, fileContents);
+            $.ajax({
                     url: '/api/savedata',
                     type: 'POST',
                     data: {
@@ -96,20 +317,11 @@
             };
     
             $(function() {
-                var tabs = $('#tabs').tabs();
-                
-
-                // var file1Path = "D:/file1.js";
-                // var file1Name = "file1.js";
-                // var file1Contents = "Dipankar";
-
-                // var file2Path = "D:/file2.js";
-                // var file2Name = "file2.js";
-                // var file2Contents = "Nag";
-
-                // editors[file1Path] = tabs.addEditorTab(file1Path, file1Name, file1Contents);
-                // editors[file2Path] = tabs.addEditorTab(file2Path, file2Name, file2Contents);
-                // editors[file2Path] = tabs.addEditorTab(file2Path, file2Name, file2Contents);
+                var tabs = $('#tabs').tabs({
+                    overflowTabs: true,
+                    tabPadding: 23,
+                    containerPadding: 40
+                });
 
                 tabs.on('click', 'span.ui-icon-close',  function() {
                     var panelId = $(this).closest('li').remove().attr('aria-controls');
@@ -119,8 +331,7 @@
                     $('div[id="' + panelId + '"]').remove();
 
                     editors[editorId.replace("editor-", "")].destroy();
-                    // editors.splice(editors.indexOf(panelId.replace("tab-", "")), 1);
-                    // console.log(editors.indexOf(panelId.replace("tab-", "")));
+
                     delete editors[panelId.replace("tab-", "")];
 
                     tabs.tabs('refresh');
@@ -144,9 +355,6 @@
                         },
                         type: 'GET',
                         success: function (data) {
-                            // $("#editor").text(data);
-                            // editor.setValue(data, -1);
-                            // console.log(editor.getSelectedText());
                             console.log(editors);
                             console.log(item.node.id, item.node.text);
                             if (typeof editors[item.node.id] === 'undefined') {
