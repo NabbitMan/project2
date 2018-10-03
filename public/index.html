@@ -5,285 +5,300 @@
     <meta charset="UTF-8">
     <title>Wetty - The WebTTY Terminal Emulator</title>
 
-    <style>
-        html,
-        body {
-            height: 100%;
-            width: 100%;
-            margin: 0px;
-        }
+    <script src="/wetty/hterm_all.js"></script>
+    <script src="/wetty/socket.io/socket.io.js"></script>
+    <script src="/wetty/wetty.js"></script>
 
-        #explorer {
-            display: block;
-            width: 30%;
-            height: 100%;
-
-            position: absolute;
-            top: 0;
-            left: 0;
-            
-        }
-
-        #editor_container {
-            display: block;
-            width: 70%;
-            height: 50%;
-
-            position: absolute;
-            top: 0;
-            right: 0;            
-        }
-
-        .editor_body {
-            height: 250px;
-        }
-
-        #terminal {
-            display: block;
-            width: 70%;
-            height: 50%;
-
-            position: absolute;
-            bottom: 0;
-            right: 0;
-        }
-
-        .ui_widget {
-            font-size: .8em !important;
-        }
-        
-        .ui-tabs-nav {
-            position: relative;
-        }
-        
-        .ui-tabs .ui-tabs-nav-arrows {
-            position: relative;
-            top: 1px;
-            right: 1px;
-            left: 1px;
-            margin: .1 em;
-            padding: 0;
-        }
-
-        .ui-tabs .ui-tabs-nav-arrows .ui-tabs-arrow-next {
-            float: right;
-        }
-
-        .ui-tabs .ui-tabs-nav-arrows li {
-            list-style: none;
-            position: relative;
-            cursor: pointer;
-            z-index: 1000;
-            line-height: 1;
-            margin: 0;
-            padding: 0;
-        }
-
-        .ui-tabs .ui-tabs-nav-arrows li a {
-            display: block;
-            padding: .7em .1em;
-        }
-
-        .ui-tabs .ui-tabs-nav-arrows .ui-tabs-arrow-previous {
-            float: left;
-        }
-
-        .ui-tabs .ui-tabs-scroll-container {
-            position: relative;
-            height: 2.7em;
-            overflow: hidden;
-        }
-
-        .ui-tabs .ui-tabs-nav-scrollable {
-            position: absolute;
-            left: 0;
-            right: 0;
-        }
-
-        .ui-tabs .ui-tabs-nav-scrollable ul {
-            position: relative;
-            width: 10000px;
-        }
-
-        .ui-tabs-overflow {
-            position: relative;
-            z-index: 100;
-            list-style: none;
-            display: block;
-            width: 200px;
-            right: 0;
-            border: 1px solid #d3d3d3;
-            border-radius: 10px;
-            min-height: 50px;
-            background: #ececec;
-            padding: 10px;
-        }
-
-        .ui-tabs-overflow li:before, .ui-tabs-overflow .ui-state-default {
-            border: 0;
-            clear: both;
-        }
-
-        .ui-tabs-overflow li:before, .ui-tabs-overflow li:after {
-            border: 0;
-        }
-
-        .ui-tabs-overflow.hide {
-            visibility: hidden;
-        }
-
-        .overflow-selector {
-            position: absolute;
-            top: 12px;
-            right: 10px;
-            background: #ececec;
-            width: 40px;
-            height: 15px;
-            border: 1px solid #d3d3d3;
-            border-top-left-radius: 5px;
-            text-align: center;
-            line-height: 15px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .overflow-selector .total {
-            font-weight: normal;
-        }
-    </style>
+    
     <!-- <link rel="stylesheet" type="text/css" href="/wetty/css/main.css" /> -->
     <link rel="stylesheet" href="/wetty/jquery-ui/css/jquery-ui.min.css" />
     <link rel="stylesheet" href="/wetty/jstree/dist/themes/default/style.min.css" />
     <link rel="stylesheet" href="/wetty/font-awesome/css/font-awesome.css" />
     <!-- <link rel="stylesheet" href="/wetty/css/bootstrap.min.css" /> -->
-
-    <script src="/wetty/hterm_all.js"></script>
-    <script src="/wetty/socket.io/socket.io.js"></script>
-    <script src="/wetty/wetty.js"></script>
+    <style>
+            html,
+            body {
+                height: 100%;
+                width: 100%;
+                margin: 0px;
+            }
+    
+            #explorer {
+                display: block;
+                width: 30%;
+                height: 100%;
+    
+                position: absolute;
+                top: 0;
+                left: 0;
+                
+            }
+    
+            #editor_container {
+                display: block;
+                width: 70%;
+                height: 50%;
+    
+                position: absolute;
+                top: 0;
+                right: 0;            
+            }
+    
+            .editor_body {
+                height: 250px;
+            }
+    
+            #terminal {
+                display: block;
+                width: 70%;
+                height: 50%;
+    
+                position: absolute;
+                bottom: 0;
+                right: 0;
+            }
+    
+            .ui-widget {
+        /* font-size: .8em !important; */
+    }
+    .ui-tabs-nav {
+        position:relative;
+    }
+    .ui-tabs .ui-tabs-nav-arrows {
+        position:absolute;
+        /* top:1px;
+        right:1px;
+        left:1px;
+        margin:.1em;
+        padding:0; */
+    }
+    .ui-tabs .ui-tabs-nav-arrows .ui-tabs-arrow-next {
+        float:right;
+    }
+    .ui-tabs .ui-tabs-nav-arrows li {
+        /* list-style:none; */
+        position:relative;
+        cursor:pointer;
+        z-index:1000;
+        /* line-height:1;
+        margin:0;
+        padding:0; */
+    }
+    .ui-tabs .ui-tabs-nav-arrows li a {
+        display: block;
+        /* padding: .7em .1em; */
+    }
+    .ui-tabs .ui-tabs-nav-arrows .ui-tabs-arrow-previous {
+        float:left;
+    }
+    .ui-tabs .ui-tabs-scroll-container {
+        position:relative;
+        height: 2.7em;
+        overflow:hidden;
+    }
+    .ui-tabs .ui-tabs-nav-scrollable {
+        position:absolute;
+        left:0;
+        right:0;
+    }
+    .ui-tabs .ui-tabs-nav-scrollable ul {
+        position:relative;
+        width:10000px;
+    }
+    
+    .ui-tabs-overflow {
+        position: absolute;
+        z-index: 100;
+        list-style: none;
+        display: block;
+        width: 200px;
+        right: 0;
+        border: 1px solid #d3d3d3;
+        border-radius: 10px;
+        min-height: 50px;
+        background: #ececec;
+        padding: 10px;
+    }
+    .ui-tabs-overflow li, .ui-tabs-overflow .ui-state-default {
+        border: 0;
+        clear: both;
+    }
+    .ui-tabs-overflow li:before, .ui-tabs-overflow li:after {
+        border: 0;
+    }
+    .ui-tabs-overflow.hide {
+        visibility: hidden;
+    }
+    
+    .overflow-selector {
+        position: absolute;
+        top: 12px;
+        right: 10px;
+        background: #ececec;
+        width: 40px;
+        height: 15px;
+        border: 1px solid #d3d3d3;
+        border-top-left-radius: 5px;
+        text-align: center;
+        line-height: 15px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .overflow-selector .total {
+        font-weight: normal;
+    }
+        </style>
+    
     <script src="/wetty/jquery/jquery.min.js"></script>
     <script src="/wetty/jquery-ui/js/jquery-ui.min.js"></script>
     <!-- <script src="/wetty/js/bootstrap.min.js"></script> -->
     <script src="/wetty/jstree/dist/jstree.min.js"></script>
     <script src="/wetty/src-noconflict/ace.js"></script>
     <script>
-        $.widget('ui.tabs', $.ui.tabs, {
-            options: {
-                overflowTabs: false,
-                tabPadding: 25,
-                containerPadding: 0,
-                dropdownSize: 50
-            },
+        $.widget("ui.tabs", $.ui.tabs, {
+	options: {
+		overflowTabs: false,
+		tabPadding: 25,
+		containerPadding: 0,
+		dropdownSize: 50
+	},
+	
+	_create: function() {
+		this._super("_create");
+		this.tabsWidth = 0;
+		this.containerWidth = 0;
+		
+		if (!this.options.overflowTabs)
+			return;
+		
+		// update the tabs
+		this.updateOverflowTabs();
+		
+		// Detect a window resize and check the tabs again
+		var that = this;
+		$(window).resize(function() {
+			// Add a slight delay after resize, to fix Maximise issue.
+			setTimeout(function() {
+				that.updateOverflowTabs();
+			}, 150);
+		});
+		
+		// Detect dropdown click
+		// $(".overflow-selector").click(function() {
+		// 	if ($('.ui-tabs-overflow').hasClass('hide')) {
+		// 		$('.ui-tabs-overflow').removeClass('hide');
+		// 	} else {
+		// 		$('.ui-tabs-overflow').addClass('hide');
+		// 	}
+		// });
+        $("body").on("click", ".overflow-selector", function() {
+			if ($('.ui-tabs-overflow').hasClass('hide')) {
+				$('.ui-tabs-overflow').removeClass('hide');
+			} else {
+				$('.ui-tabs-overflow').addClass('hide');
+			}
+		});
+	},
+	
+	refresh: function() {
+		this._super("refresh");
+		this.updateOverflowTabs();
+	},
+	
+	updateOverflowTabs: function() {
+		var failsafe = 0;
+		this._calculateWidths();
+		console.log(this.containerWidth);
+		
+		// Loop until tabsWidth is less than the containerWidth
+		while (this.tabsWidth > this.containerWidth && failsafe < 30)
+		{
+			this._hideTab();
+			this._calculateWidths();
+			failsafe++;
+		}
+	
+		// Finish now if there are no tabs in the overflow list
+		if ($(this.element).find('.ui-tabs-overflow li').length == 0)
+			return;
+			
+		// Reset
+		failsafe = 0;
+		
+		// Get the first tab in the overflow list
+		var next = this._nextTab();
 
-            _create: function() {
-                this._super('_create');
-                this.tabsWidth = 0;
-                this.containerWidth = 0;
+		// Loop until we cannot fit any more tabs
+		while (next.totalSize < this.containerWidth && $(this.element).find('.ui-tabs-overflow li').length > 0 && failsafe < 30)
+		{
+			this._showTab(next.tab);
+			this._calculateWidths();
+			
+			next = this._nextTab();
 
-                if(!this.options.overflowTabs) {
-                    return;
-                }
+			failsafe++;
+		}
+	},
+	
+	_calculateWidths: function() {
+		var width = 0;
+		$(this.element).find('.ui-tabs-nav > li').each(function(){
+			width += $(this).outerWidth(true);
+		});
+		
+		this.tabsWidth = width;
+		this.containerWidth = $(this.element).parent().width() - this.options.containerPadding - this.options.dropdownSize;
+		
+		$('.overflow-selector .total').html($(this.element).find('.ui-tabs-overflow li').length);
+	},
+	
+	_hideTab: function() {
+		if (!$('.ui-tabs-overflow').length)
+		{
+			$(this.element).find('.ui-tabs-nav').after('<ul class="ui-tabs-overflow hide"></ul>');
+			$(this.element).find('.ui-tabs-overflow').after('<div class="overflow-selector">&#8595 <span class="total">0</span></div>');
+		}
 
-                this.updateOverflowTabs();
-                var that = this;
-                $(window).resize(function() {
-                    setTimeout(function() {
-                        that.updateOverflowTabs();
-                    }, 150);
-                });
+		var lastTab = $(this.element).find('.ui-tabs-nav li').last();
+		lastTab.appendTo($(this.element).find('.ui-tabs-overflow'));
+	},
+	
+	_showTab: function(tab) {
+		tab.appendTo($(this.element).find('.ui-tabs-nav'));
 
-                $('.overflow-selector').click(function() {
-                    if($('.ui-tabs-overflow').hasClass('hide')) {
-                        $('.ui-tabs-overflow').removeClass('hide');
-                    }
-                    else {
-                        $('.ui-tabs-overflow').addClass('hide');
-                    }
-                });
-            },
-            refresh: function() {
-                this._super('refresh');
-                this.updateOverflowTabs();
-            },
-            updateOverflowTabs: function() {
-                var failsafe = 0;
-                this._calculateWidths();
-                console.log(this.containerWidth);
+		// Check to see if overflow list is now empty
+		if ($(this.element).find('.ui-tabs-overflow li').length == 0)
+		{
+			$(this.element).find('.ui-tabs-overflow').remove();
+			$(this.element).find('.overflow-selector').remove();
+		}
+	},
+	
+	_nextTab: function() {
+		var result = {};
+		var firstTab = $(this.element).find('.ui-tabs-overflow li').first();
+		
+		result['tab'] = firstTab;
+		result['totalSize'] = this.tabsWidth + this._textWidth(firstTab) + this.options.tabPadding;
+		
+		return result;
+	},
 
-                while(this.tabsWidth > this.containerWidth && failsafe < 30) {
-                    this._hideTab();
-                    this._calculateWidths();
-                    failsafe++;
-                }
+	_textWidth: function(element) {
+		var self = $(element),
+			children = self.children(),
+			calculator = $('<span style="display: inline-block;" />'),
+			width;
 
-                if ($(this.element).find('.ui-tabs-overflow li').length == 0) {
-                    return;
-                }
-
-                failsafe = 0;
-
-                var next = this._nextTab();
-
-                while(next.totalSize < this.containerWidth && $(this.element).find('.ui-tabs-overflow li').length > 0 && failsafe < 30) {
-                    this._showTab(next.tab);
-                    this._calculateWidths();
-                    next = this._nextTab();
-                    failsafe++;
-                }
-            },
-
-            _calculateWidths: function() {
-                var width = 0;
-                $(this.element).find('.ui-tabs-nav > li').each(function() {
-                    width += $(this).outerWidth(true);
-                });
-
-                this.tabsWidth = width;
-                this.containerWidth = $(this.element).parent().width() - this.options.containerPadding - this.options.dropdownSize;
-
-                $('.overflow-selector .total').html($(this.element).find('.ui-tabs-overflow li').length);
-            },
-
-            _hideTab: function() {
-                if (!$(this.element).find('.ui-tabs-overflow').length) {
-                    $(this.element).find('.ui-tabs-nav').after('<ul class="ui-tabs-overflow hide"></ul>');
-                    $(this.element).find('.ui-tabs-overflow').after('<div class="overflow-selector">&#8595 <span class="total">0</span></div>');
-                }
-                
-                var lastTab = $(this.element).find('.ui-tabs-nav li').last();
-                lastTab.appendTo($(this.element).find('.ui-tabs-overflow'));
-            },
-
-            _showTab: function(tab) {
-                tab.appendTo($(this.element).find('.ui-tabs-nav'));
-
-                if ($(this.element).find('.ui-tabs-overflow li').length == 0) {
-                    $(this.element).find('.ui-tabs-overflow').remove();
-                    $(this.element).find('.overflow-selector').remove();
-                }
-            },
-
-            _nextTab: function() {
-                var result = {};
-                var firstTab = $(this.element).find('.ui-tabs-overflow li').first();
-                result['tab'] = firstTab;
-                result['totalSize'] = this.tabsWidth + this._textWidth(firstTab) + this.options.tabPadding;
-                return result;
-            },
-
-            _textWidth: function(element) {
-                var self = $(element),
-                    children = self.children(),
-                    calculator = $('<span style="display: inline-block;" />'), width;
-
-                children.wrap(calculator);
-                width = children.parent().width();
-                children.unwrap();
-
-                return width;
-            }
-        });
-
+		children.wrap(calculator);
+		width = children.parent().width();
+		children.unwrap();
+		
+		return width;
+	}
+});
         var editors = {};
 
         var savedata = function (save_button_id) {
